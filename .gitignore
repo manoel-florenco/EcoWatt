@@ -1,0 +1,14 @@
+target/
+.m2-cache/
+data/
+.idea/
+.vscode/
+*.iml
+*.log
+.codex_tmp/
+Entrega_Gabriela/
+*.mv.db
+*.trace.db
+.DS_Store
+Thumbs.db
+

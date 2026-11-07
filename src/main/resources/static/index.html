@@ -1,0 +1,298 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="EcoWatt: simulador acadêmico de consumo residencial de energia.">
+    <title>EcoWatt | Simulador de energia</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <script src="/js/app.js" defer></script>
+</head>
+<body>
+<a class="skip-link" href="#content">Pular para o conteúdo</a>
+
+<section class="setup-overlay" id="setup-overlay" role="dialog" aria-modal="true" aria-labelledby="setup-title" hidden>
+    <form class="setup-card" id="setup-form">
+        <button class="setup-close" id="setup-close" type="button" data-action="close-energy-settings" aria-label="Fechar configuração" hidden>×</button>
+        <div class="setup-card__icon" aria-hidden="true">⚡</div>
+        <span class="eyebrow" id="setup-eyebrow">Antes de começar</span>
+        <h1 id="setup-title">Configure a energia da sua região</h1>
+        <p id="setup-description">Esses dados são obrigatórios porque a tarifa local e a bandeira vigente alteram diretamente todas as estimativas.</p>
+        <label>Cidade e UF
+            <input id="setup-location" maxlength="100" required placeholder="Ex.: Goiânia/GO" autocomplete="address-level2">
+        </label>
+        <label>Tarifa-base da sua região (R$/kWh)
+            <input id="setup-tariff" type="number" min="0.01" step="0.00001" required placeholder="Ex.: 0,90">
+        </label>
+        <label>Bandeira tarifária vigente
+            <select id="setup-flag" required>
+                <option value="">Selecione a bandeira</option>
+                <option value="GREEN">🟢 Verde — sem adicional</option>
+                <option value="YELLOW">🟡 Amarela — + R$ 0,01885/kWh</option>
+                <option value="RED_LEVEL_1">🔴 Vermelha 1 — + R$ 0,04463/kWh</option>
+                <option value="RED_LEVEL_2">🔴 Vermelha 2 — + R$ 0,07877/kWh</option>
+            </select>
+        </label>
+        <p class="hint">Use a tarifa da sua conta sem o adicional da bandeira. A bandeira é divulgada mensalmente pela ANEEL.</p>
+        <div class="setup-card__actions">
+            <button class="button" id="setup-submit" type="submit">Salvar e iniciar simulação</button>
+            <button class="button button--ghost" id="setup-cancel" type="button" data-action="close-energy-settings" hidden>Cancelar</button>
+        </div>
+    </form>
+</section>
+
+<header class="topbar">
+    <div class="shell topbar__content">
+        <a class="brand" href="#overview" aria-label="EcoWatt — início">
+            <span class="brand__mark" aria-hidden="true">⚡</span>
+            <span>Eco<strong>Watt</strong></span>
+        </a>
+        <button class="energy-context" id="energy-context" type="button" data-action="open-energy-settings" aria-haspopup="dialog" aria-controls="setup-overlay" title="Alterar região, tarifa e bandeira" hidden>
+            <span aria-hidden="true">⚡</span>
+            <span id="energy-context-text"></span>
+            <span class="energy-context__edit" aria-hidden="true">✏️</span>
+        </button>
+        <button class="menu-button" id="menu-button" aria-expanded="false" aria-controls="main-nav">
+            Menu
+        </button>
+        <nav class="nav" id="main-nav" aria-label="Navegação principal">
+            <a href="#overview" data-view-link="overview" class="active">Visão geral</a>
+            <a href="#appliances" data-view-link="appliances">Aparelhos</a>
+            <a href="#simulation" data-view-link="simulation">Simulador</a>
+            <a href="#goal" data-view-link="goal">Meta</a>
+            <a href="#report" data-view-link="report">Relatório</a>
+        </nav>
+    </div>
+</header>
+
+<main id="content" class="shell">
+    <div id="notification" class="notification" role="status" aria-live="polite" hidden></div>
+
+    <section class="view active" id="overview" data-view="overview">
+        <div class="hero">
+            <div class="hero__content">
+                <span class="eyebrow">Consumo consciente começa com informação</span>
+                <h1>Entenda para onde vai a energia da sua casa.</h1>
+                <p>Cadastre os aparelhos, compare cenários e transforme hábitos em uma meta de economia possível.</p>
+                <div class="button-row">
+                    <a class="button" href="#appliances">Cadastrar aparelho</a>
+                    <button class="button button--soft" type="button" data-action="load-demo">Usar residência de exemplo</button>
+                </div>
+            </div>
+            <div class="hero__visual" aria-hidden="true">
+                <div class="orb orb--large">⚡</div>
+                <div class="orb orb--small">🌱</div>
+                <div class="energy-line"></div>
+            </div>
+        </div>
+
+        <div class="kpi-grid" id="kpi-grid" aria-label="Resumo do consumo"></div>
+
+        <div class="content-grid content-grid--wide">
+            <article class="panel">
+                <div class="panel__header">
+                    <div>
+                        <span class="eyebrow">Ranking mensal</span>
+                        <h2>Maiores consumidores</h2>
+                    </div>
+                    <a href="#appliances" class="text-link">Ver todos</a>
+                </div>
+                <div id="ranking"></div>
+            </article>
+
+            <article class="panel">
+                <div class="panel__header">
+                    <div>
+                        <span class="eyebrow">Distribuição</span>
+                        <h2>Participação no consumo</h2>
+                    </div>
+                </div>
+                <div id="consumption-chart"></div>
+            </article>
+        </div>
+
+        <article class="panel callout">
+            <div>
+                <span class="eyebrow">Próximo passo</span>
+                <h2 id="goal-callout-title">Crie uma meta mensal</h2>
+                <p id="goal-callout-text">Defina quanto deseja economizar e veja sugestões calculadas com seus dados.</p>
+            </div>
+            <a class="button button--dark" href="#goal">Planejar economia</a>
+        </article>
+    </section>
+
+    <section class="view" id="appliances" data-view="appliances" hidden>
+        <div class="page-heading">
+            <div>
+                <span class="eyebrow">Inventário energético</span>
+                <h1>Seus aparelhos</h1>
+                <p>Use a potência e o tempo de uso ou informe diretamente o consumo mensal da etiqueta.</p>
+            </div>
+            <button class="button" type="button" data-action="new-appliance">+ Novo aparelho</button>
+        </div>
+
+        <div class="content-grid content-grid--form">
+            <form class="panel appliance-form" id="appliance-form">
+                <div class="panel__header">
+                    <div>
+                        <span class="eyebrow">Cadastro</span>
+                        <h2 id="form-title">Novo aparelho</h2>
+                    </div>
+                    <button class="icon-button" type="button" data-action="cancel-edit" aria-label="Limpar formulário">×</button>
+                </div>
+
+                <div class="mode-switch" role="group" aria-label="Forma de informar o consumo">
+                    <button type="button" class="active" data-mode="POWER_TIME">Potência e tempo</button>
+                    <button type="button" data-mode="MONTHLY_KWH">Consumo mensal</button>
+                </div>
+
+                <div class="preset-list" id="preset-list" aria-label="Modelos rápidos"></div>
+
+                <input type="hidden" id="appliance-id">
+                <div class="form-grid form-grid--two">
+                    <label>Nome
+                        <input id="name" name="name" maxlength="80" required placeholder="Ex.: Televisão">
+                    </label>
+                    <label>Ícone
+                        <input id="icon" name="icon" maxlength="8" value="🔌" aria-label="Ícone do aparelho">
+                    </label>
+                    <label>Quantidade
+                        <input id="quantity" name="quantity" type="number" min="1" step="1" value="1" required>
+                    </label>
+                </div>
+
+                <div id="power-fields" class="form-grid form-grid--two">
+                    <label>Potência (W)
+                        <input id="powerWatts" name="powerWatts" type="number" min="0.01" step="0.01" placeholder="100">
+                    </label>
+                    <label>Horas por dia
+                        <input id="hoursPerDay" name="hoursPerDay" type="number" min="0" max="24" step="0.1" placeholder="5">
+                    </label>
+                    <label>Dias por mês
+                        <input id="daysPerMonth" name="daysPerMonth" type="number" min="1" max="31" step="1" value="30">
+                    </label>
+                </div>
+
+                <div id="kwh-fields" hidden>
+                    <label>Consumo mensal total (kWh)
+                        <input id="monthlyKwh" name="monthlyKwh" type="number" min="0" step="0.01" placeholder="38">
+                    </label>
+                    <p class="hint">Use o valor da etiqueta ou do manual. A quantidade é informativa e não multiplica este total.</p>
+                </div>
+
+                <label class="checkbox">
+                    <input id="essential" name="essential" type="checkbox">
+                    <span>É essencial para saúde ou segurança</span>
+                </label>
+
+                <div class="button-row">
+                    <button class="button" type="submit">Salvar aparelho</button>
+                    <button class="button button--ghost" type="button" data-action="cancel-edit">Cancelar</button>
+                </div>
+            </form>
+
+            <article class="panel appliance-list-panel">
+                <div class="panel__header">
+                    <div>
+                        <span class="eyebrow">Dados salvos no H2</span>
+                        <h2 id="appliance-list-title">Aparelhos cadastrados</h2>
+                    </div>
+                    <button class="danger-link" type="button" data-action="delete-all">Limpar tudo</button>
+                </div>
+                <div id="appliance-list"></div>
+            </article>
+        </div>
+    </section>
+
+    <section class="view" id="simulation" data-view="simulation" hidden>
+        <div class="page-heading">
+            <div>
+                <span class="eyebrow">Teste sem alterar o cadastro</span>
+                <h1>Simulador de hábitos</h1>
+                <p>Escolha um aparelho e veja o efeito de uma mudança de uso antes de aplicá-la.</p>
+            </div>
+        </div>
+        <div class="content-grid content-grid--form">
+            <form class="panel" id="simulation-form">
+                <h2>Monte um cenário</h2>
+                <label>Aparelho
+                    <select id="simulation-appliance"></select>
+                </label>
+                <label id="simulation-value-label">Novo uso
+                    <input id="simulation-value" type="number" min="0" step="0.1" required>
+                </label>
+                <p class="hint" id="simulation-original"></p>
+                <button class="button" type="submit">Calcular cenário</button>
+            </form>
+            <article class="panel result-panel" id="simulation-result">
+                <div class="empty-state">
+                    <span>🧪</span>
+                    <h2>O resultado aparecerá aqui</h2>
+                    <p>Os dados cadastrados não serão alterados.</p>
+                </div>
+            </article>
+        </div>
+    </section>
+
+    <section class="view" id="goal" data-view="goal" hidden>
+        <div class="page-heading">
+            <div>
+                <span class="eyebrow">Planejamento</span>
+                <h1>Meta de economia</h1>
+                <p>O EcoWatt prioriza os maiores custos e nunca sugere reduzir aparelhos essenciais.</p>
+            </div>
+        </div>
+        <div class="content-grid content-grid--form">
+            <form class="panel" id="settings-form">
+                <h2>Parâmetros do cálculo</h2>
+                <label>Cidade e UF
+                    <input id="location" maxlength="100" required placeholder="Ex.: Goiânia/GO">
+                </label>
+                <label>Tarifa-base de energia (R$/kWh)
+                    <input id="tariffPerKwh" type="number" min="0.01" step="0.00001" required>
+                </label>
+                <label>Bandeira tarifária vigente
+                    <select id="tariffFlag" required>
+                        <option value="">Selecione a bandeira</option>
+                        <option value="GREEN">🟢 Verde — sem adicional</option>
+                        <option value="YELLOW">🟡 Amarela — + R$ 0,01885/kWh</option>
+                        <option value="RED_LEVEL_1">🔴 Vermelha 1 — + R$ 0,04463/kWh</option>
+                        <option value="RED_LEVEL_2">🔴 Vermelha 2 — + R$ 0,07877/kWh</option>
+                    </select>
+                </label>
+                <label>Quero economizar por mês (R$)
+                    <input id="savingsGoal" type="number" min="0" step="0.01" required>
+                </label>
+                <label>Redução máxima por aparelho (%)
+                    <input id="maxReductionPercent" type="number" min="0" max="100" step="1" required>
+                </label>
+                <div class="tariff-preview" id="tariff-preview"></div>
+                <p class="hint">A tarifa pode ser encontrada na conta de energia. Não inclua novamente o adicional da bandeira.</p>
+                <button class="button" type="submit">Atualizar cálculo</button>
+            </form>
+            <article class="panel" id="savings-plan"></article>
+        </div>
+    </section>
+
+    <section class="view" id="report" data-view="report" hidden>
+        <div class="page-heading no-print">
+            <div>
+                <span class="eyebrow">Síntese para apresentação</span>
+                <h1>Relatório EcoWatt</h1>
+                <p>Uma visão consolidada do consumo e das oportunidades de economia.</p>
+            </div>
+            <button class="button" type="button" data-action="print">Imprimir ou salvar em PDF</button>
+        </div>
+        <article class="report" id="report-content"></article>
+    </section>
+</main>
+
+<footer class="footer no-print">
+    <div class="shell">
+        <span class="brand brand--small"><span aria-hidden="true">⚡</span> Eco<strong>Watt</strong></span>
+        <p>Projeto acadêmico · estimativas baseadas nos dados informados.</p>
+    </div>
+</footer>
+</body>
+</html>
+

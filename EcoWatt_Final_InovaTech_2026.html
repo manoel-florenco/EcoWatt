@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="pt-BR"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>EcoWatt – Simulador de energia residencial</title>
+<style>
+:root{--bg:#F8FAFC;--card:#fff;--tx:#1E293B;--mut:#64748b;--g:#16A34A;--gd:#166534;--gs:#DCFCE7;--bd:#e2e8f0;--wn:#b45309;color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f172a;--card:#1e293b;--tx:#f1f5f9;--mut:#94a3b8;--g:#22c55e;--gd:#86efac;--gs:#14532d;--bd:#334155;--wn:#fbbf24;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0f172a;--card:#1e293b;--tx:#f1f5f9;--mut:#94a3b8;--g:#22c55e;--gd:#86efac;--gs:#14532d;--bd:#334155;--wn:#fbbf24;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.w{max-width:1000px;margin:0 auto;padding:0 16px 40px}
+header{padding:16px 0 8px}
+.logo{font-size:1.4rem;font-weight:800;color:var(--gd)}.logo span{color:var(--g)}
+nav{display:flex;gap:6px;overflow-x:auto;padding:10px 0}
+nav a{padding:8px 14px;border-radius:99px;text-decoration:none;color:var(--tx);white-space:nowrap;font-weight:600;font-size:.9rem;border:1px solid var(--bd);background:var(--card)}
+nav a[aria-current=page]{background:var(--g);color:#fff;border-color:var(--g)}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:16px;padding:18px;margin:14px 0;box-shadow:0 1px 3px rgba(0,0,0,.06);animation:in .35s ease}
+@keyframes in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.hero{background:linear-gradient(135deg,var(--gs),var(--card))}
+h1{font-size:1.6rem;line-height:1.2;margin:0 0 8px}h2{font-size:1.1rem;margin:0 0 12px}
+.m{color:var(--mut);font-size:.9rem}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+.grid .card{margin:0}
+.kpi b{display:block;font-size:1.5rem;color:var(--gd)}.kpi span{font-size:.85rem;color:var(--mut)}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.btn{display:inline-block;background:var(--g);color:#fff;border:0;border-radius:10px;padding:10px 16px;font:inherit;font-weight:700;cursor:pointer;text-decoration:none}
+.btn.s{background:var(--gs);color:var(--gd)}.btn.d{background:transparent;color:var(--wn);border:1px solid var(--wn)}
+.btn:focus-visible,input:focus-visible,select:focus-visible,nav a:focus-visible{outline:3px solid var(--g);outline-offset:2px}
+label{display:block;font-size:.85rem;font-weight:600;margin-bottom:10px}
+input,select{width:100%;padding:9px 10px;border-radius:8px;border:1px solid var(--bd);background:var(--bg);color:var(--tx);font:inherit;margin-top:4px}
+input[type=checkbox]{width:auto;margin-right:6px}input[type=range]{padding:0}
+.fg{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:0 12px}
+.pre{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
+.pre button{border:1px solid var(--bd);background:var(--bg);color:var(--tx);border-radius:10px;padding:6px 10px;cursor:pointer;font:inherit;font-size:.85rem}
+.tw{overflow-x:auto}table{width:100%;border-collapse:collapse;font-size:.88rem}
+th,td{padding:8px 6px;text-align:left;border-bottom:1px solid var(--bd);white-space:nowrap}
+.tag{display:inline-block;background:var(--gs);color:var(--gd);border-radius:99px;padding:2px 10px;font-size:.75rem;font-weight:700}
+.err{color:var(--wn);font-weight:600;min-height:1.4em}
+.rk{display:grid;grid-template-columns:28px 1fr auto;gap:4px 10px;align-items:center;margin:8px 0}
+.rk i{grid-column:2/4;height:8px;border-radius:99px;background:var(--bd);overflow:hidden}.rk i b{display:block;height:100%;background:var(--g);transition:width .5s}
+svg{width:100%;height:auto}.t{font-size:12px;fill:var(--tx)}
+.lg{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:.82rem;margin-top:8px}.lg s{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;text-decoration:none}
+.ok{background:var(--gs);color:var(--gd);padding:12px;border-radius:10px;font-weight:600}
+@media print{header,.np{display:none!important}body{background:#fff}.card{box-shadow:none;animation:none;break-inside:avoid}
+:root,:root:not([data-theme="light"]),:root[data-theme="dark"]{--bg:#fff;--card:#fff;--tx:#111;--mut:#444;--g:#16A34A;--gd:#166534;--gs:#DCFCE7;--bd:#ccc;--wn:#92400e}}
+@media(max-width:480px){.w{padding-left:12px;padding-right:12px}.card{padding:14px}.kpi b{font-size:1.25rem}nav a{padding:8px 11px}}
+@media print{nav,#theme,#tests,.toast{display:none!important}.w{max-width:none}.grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+</style></head><body><div class="w">
+<header><div class="logo">⚡ Eco<span>Watt</span></div><div class="m">Sua energia, suas escolhas, sua economia.</div><nav id="nav" aria-label="Navegação principal"></nav></header>
+<main id="app"></main></div>
+<script>
+/* ===== Lógica de cálculo (funções puras, independentes da interface) ===== */
+const kwh=d=>d.kwh!=null?d.kwh:d.w*d.q*d.h*d.d/1000;          // kWh/mês
+const simKwh=(d,v)=>d.kwh!=null?v:d.w*d.q*v*d.d/1000; /* v = h/dia (modo potência) ou kWh/mês total (modo kWh) */               // escala pelo tempo de uso; evita divisão por zero
+console.assert(Math.abs(kwh({w:100,q:1,h:5,d:30})-15)<1e-9,"TV 100 W, 5 h, 30 dias = 15 kWh");
+console.assert(Math.abs(simKwh({w:100,q:1,h:4,d:30},2)-6)<1e-9,"metade das horas = metade do consumo");
+
+/* ===== Estado e persistência ===== */
+let S={tariff:0.9,limit:50,goal:50,devices:[]};
+try{const r=localStorage.getItem("ecowatt");if(r)S={...S,...JSON.parse(r)}}catch(e){}
+const save=()=>{try{localStorage.setItem("ecowatt",JSON.stringify(S))}catch(e){}};
+const $=s=>document.querySelector(s);
+const R=v=>v.toLocaleString("pt-BR",{style:"currency",currency:"BRL"});
+const K=v=>v.toLocaleString("pt-BR",{maximumFractionDigits:1})+" kWh";
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const P=v=>{const s=String(v).trim().replace(",",".");return s===""?null:/^\d*\.?\d+$/.test(s)?+s:NaN};
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+const cost=k=>k*S.tariff;
+const rows=()=>S.devices.map(d=>{const k=kwh(d);return{d,k,c:cost(k)}});
+const tot=()=>{const r=rows();return{k:r.reduce((a,x)=>a+x.k,0),c:r.reduce((a,x)=>a+x.c,0)}};
+let potential=()=>rows().filter(r=>!r.d.ess).reduce((a,r)=>a+r.c*S.limit/100,0);
+function plan(goal){let need=goal;const steps=[];
+ for(const r of rows().filter(r=>!r.d.ess).sort((a,b)=>b.c-a.c)){if(need<=0)break;
+  const take=Math.min(r.c*S.limit/100,need);if(take<=0)continue;
+  steps.push({r,take,hrs:r.d.h*take/r.c});need-=take}
+ return{steps,left:Math.max(need,0)}}
+/* ===== Dados ===== */
+const PRE=[["🧊","Geladeira",150,24,30,1],["📺","Televisão",100,5,30],["❄️","Ar-condicionado",1100,8,30],["🌀","Ventilador",80,6,30],["🚿","Chuveiro elétrico",5500,.5,30],["🧺","Máquina de lavar",500,1,12],["🍲","Micro-ondas",1200,.3,30],["🖥️","Computador",250,6,30],["💻","Notebook",60,5,30],["💡","Lâmpadas",10,5,30],["👔","Ferro de passar",1000,.5,8],["🍟","Air fryer",1500,.5,20],["🔥","Forno elétrico",1500,.5,20],["💨","Secador de cabelo",1200,.2,15],["🔌","Outros aparelhos",100,1,30]];
+const SAMPLE=[["🧊","Geladeira",150,1,24,30,38,1],["❄️","Ar-condicionado",1100,1,6,20],["🚿","Chuveiro elétrico",5500,1,.4,30],["📺","Televisão",100,1,5,30],["🍟","Air fryer",1500,1,.5,20],["🌀","Ventilador",80,1,6,30],["💡","Lâmpadas",10,8,5,30],["🍲","Micro-ondas",1200,1,.3,30],["💻","Notebook",60,1,6,22],["🧺","Máquina de lavar",500,1,1,12]]
+ .map(a=>({icon:a[0],name:a[1],w:a[2],q:a[3],h:a[4],d:a[5],kwh:a[6]??null,ess:!!a[7],sample:true}));
+const COL=["#16A34A","#0d9488","#65a30d","#0891b2","#ca8a04","#7c3aed","#db2777","#64748b"];
+/* ===== Gráficos SVG ===== */
+function bars(r){r=r.slice().sort((a,b)=>b.c-a.c).slice(0,8);const mx=Math.max(...r.map(x=>x.c),1e-9);
+ return`<svg viewBox="0 0 400 ${r.length*34+6}" role="img" aria-label="Aparelhos que mais consomem">${r.map((x,i)=>{const y=i*34+4,w=Math.max(3,x.c/mx*190);
+ return`<g><title>${esc(x.d.name)}: ${K(x.k)} · ${R(x.c)}</title><text x="0" y="${y+13}" class="t">${x.d.icon} ${esc(x.d.name.slice(0,14))}</text><rect x="125" y="${y}" width="${w}" height="18" rx="5" style="fill:var(--g)"/><text x="${130+w}" y="${y+13}" class="t">${R(x.c)}</text></g>`}).join("")}</svg>`}
+function donut(r){const t=r.reduce((a,x)=>a+x.k,0);const l=r.filter(x=>x.k>0).sort((a,b)=>b.k-a.k);let off=25;
+ const c=l.map((x,i)=>{const p=x.k/t*100,s=`<circle cx="21" cy="21" r="15.915" fill="none" stroke="${COL[i%8]}" stroke-width="7" stroke-dasharray="${p} ${100-p}" stroke-dashoffset="${off}"><title>${esc(x.d.name)}: ${p.toFixed(1)}% · ${K(x.k)} · ${R(x.c)}</title></circle>`;off-=p;return s}).join("");
+ return`<svg viewBox="0 0 42 42" style="max-width:260px;display:block;margin:auto" role="img" aria-label="Participação no consumo">${c}<text x="21" y="22.5" text-anchor="middle" style="font-size:4px;fill:var(--tx)">${K(t)}</text></svg><div class="lg">${l.map((x,i)=>`<span><s style="background:${COL[i%8]}"></s>${esc(x.d.name)} ${(x.k/t*100).toFixed(1)}%</span>`).join("")}</div>`}
+function cmp(a,b,la,lb){const mx=Math.max(a,b,1e-9);const row=(v,l,y,f)=>`<text x="0" y="${y+14}" class="t">${l}</text><rect x="100" y="${y}" width="${Math.max(3,v/mx*190)}" height="22" rx="5" style="fill:${f}"/><text x="${105+Math.max(3,v/mx*190)}" y="${y+15}" class="t">${R(v)}</text>`;
+ return`<svg viewBox="0 0 400 64" role="img" aria-label="Comparação de cenários">${row(a,la,0,"var(--mut)")}${row(b,lb,36,"var(--g)")}</svg>`}
+const empty=()=>`<div class="card"><p>Cadastre aparelhos primeiro, ou <button class="btn s" data-a="demo">carregue a residência de exemplo</button>.</p></div>`;
+const kpi=(l,v)=>`<div class="card kpi"><span>${l}</span><b>${v}</b></div>`;
+const hasSample=()=>S.devices.some(d=>d.sample);
+const tag=()=>hasSample()?`<span class="tag">Dados de exemplo: residência fictícia</span>`:"";
+function ranking(){const r=rows().sort((a,b)=>b.c-a.c).slice(0,5),t=tot();if(!r.length)return`<p class="m">Nenhum aparelho cadastrado ainda.</p>`;
+ return r.map((x,i)=>{const p=t.k>0?x.k/t.k*100:0;return`<div class="rk"><span>${["🥇","🥈","🥉","4º","5º"][i]}</span><span>${x.d.icon} <b>${esc(x.d.name)}</b></span><span>${R(x.c)} · ${p.toFixed(1)}%</span><i><b style="width:${p}%"></b></i></div>`}).join("")}
+/* ===== Telas ===== */
+let editId=null,curIcon="🔌",sim={id:null,h:0};
+function vInicio(){const t=tot(),p=plan(S.goal);
+ return`<div class="card hero"><h1>Descubra quanto cada aparelho pesa na sua conta.</h1><p class="m">Informe potência e tempo de uso, veja o ranking dos vilões e simule hábitos mais econômicos.</p><div class="row"><a class="btn" href="#aparelhos">Começar simulação</a><button class="btn s" data-a="demo">Carregar residência de exemplo</button></div><p>${tag()}</p></div>
+ <div class="grid">${kpi("Consumo mensal",K(t.k))}${kpi("Custo estimado",R(t.c))}${kpi("Aparelhos cadastrados",S.devices.length)}${kpi("Economia potencial",R(potential()))}</div>
+ <div class="card"><h2>Ranking dos vilões da energia</h2>${ranking()}</div>
+ ${S.devices.length?`<div class="card"><h2>Planejador de metas</h2><p>Meta de ${R(S.goal)}/mês: ${p.left<=0?"alcançável com as reduções sugeridas.":`faltariam ${R(p.left)} dentro dos limites configurados.`} <a href="#meta">Ver cenários</a> · <a href="#simulador">Simular hábitos</a></p></div>`:""}
+ <div class="card"><h2>Tarifa de energia</h2><label>Valor por kWh (R$)<input id="tar" inputmode="decimal" value="${String(S.tariff).replace(".",",")}"></label><p class="m">Use o valor efetivo da sua conta. Tributos, bandeiras tarifárias e outros itens da fatura alteram o total: os resultados são estimativas, não o valor exato da conta.</p><button class="btn d np" data-a="clear">Excluir todos os dados</button></div>`}
+function vAparelhos(){const e=S.devices.find(d=>d.id===editId)||{},r=rows();curIcon=e.icon||curIcon;const v=(x,d)=>esc(e[x]!=null?String(e[x]).replace(".",","):d);
+ return`<div class="card"><h2>${e.id?"Editar aparelho":"Cadastrar aparelho"}</h2>
+ <div class="pre">${PRE.map((p,i)=>`<button type="button" data-a="pre" data-i="${i}">${p[0]} ${p[1]}</button>`).join("")}</div>
+ <div class="fg"><label>Nome<input id="f-name" value="${v("name","")}"></label><label>Potência (W)<input id="f-w" inputmode="decimal" value="${v("w","")}"></label><label>Quantidade<input id="f-q" inputmode="decimal" value="${v("q","1")}"></label><label>Horas por dia<input id="f-h" inputmode="decimal" value="${v("h","")}"></label><label>Dias por mês<input id="f-d" inputmode="decimal" value="${v("d","30")}"></label><label>kWh/mês TOTAL, todas as unidades (opcional)<input id="f-kwh" inputmode="decimal" value="${e.kwh!=null?v("kwh",""):""}"></label></div>
+ <label><input type="checkbox" id="f-ess" ${e.ess?"checked":""}>Essencial (saúde ou segurança): não sugerir redução</label>
+ <p class="m">A potência sugerida é só referência: varia conforme o modelo. Para aparelhos que ligam e desligam sozinhos (geladeira, ar-condicionado), prefira informar o consumo mensal da etiqueta.</p>
+ <p class="err" id="err" role="alert"></p><div class="row"><button class="btn" data-a="save">${e.id?"Salvar alterações":"Adicionar"}</button>${e.id?`<button class="btn s" data-a="cancel">Cancelar</button>`:""}</div></div>
+ <div class="card"><h2>Aparelhos (${r.length}) ${tag()}</h2>${r.length?`<div class="tw"><table><tr><th>Aparelho</th><th>Qtd</th><th>Consumo</th><th>Custo</th><th>%</th><th></th></tr>${r.map(x=>{const t=tot();return`<tr><td>${x.d.icon} ${esc(x.d.name)}</td><td>${x.d.q}</td><td>${K(x.k)}</td><td>${R(x.c)}</td><td>${(t.k>0?x.k/t.k*100:0).toFixed(1)}%</td><td><button class="btn s" data-a="edit" data-id="${x.d.id}" aria-label="Editar ${esc(x.d.name)}">✏️</button> <button class="btn d" data-a="del" data-id="${x.d.id}" aria-label="Excluir ${esc(x.d.name)}">🗑️</button></td></tr>`}).join("")}<tr><th colspan="2">Total</th><th>${K(tot().k)}</th><th>${R(tot().c)}</th><th></th><th></th></tr></table></div><p class="m">Consumo = potência (W) × quantidade × horas/dia × dias/mês ÷ 1000.</p>`:`<p class="m">Nada por aqui ainda.</p>`}</div>`}
+function vGraficos(){if(!S.devices.length)return empty();const r=rows(),t=tot(),p=potential();
+ return`<div class="card"><h2>Quem mais consome (R$/mês)</h2>${bars(r)}</div><div class="card"><h2>Participação no consumo</h2>${donut(r)}</div><div class="card"><h2>Cenário atual × cenário de economia</h2>${cmp(t.c,t.c-p,"Atual","Com economia")}<p class="m">Cenário: reduzir ${S.limit}% do uso dos aparelhos não essenciais. Economia estimada: ${R(p)}/mês.</p></div>`}
+function simRes(){const d=S.devices.find(x=>x.id===sim.id);if(!d)return"";const a=kwh(d),b=simKwh(d,sim.h),dk=a-b,dc=cost(dk),pc=a>0?dk/a*100:0,t=tot();
+ const msg=dc>0.005?`Com essa mudança, você poderá economizar aproximadamente ${R(dc)} por mês.`:dc<-0.005?`Essa mudança aumentaria o gasto em cerca de ${R(-dc)} por mês.`:"Sem alteração no consumo.";
+ return`<div class="ok">${msg}</div><div class="grid" style="margin-top:12px">${kpi("Consumo anterior",K(a))}${kpi("Novo consumo",K(b))}${kpi("Economia em kWh",K(dk))}${kpi("Economia mensal",R(dc))}${kpi("Economia anual",R(dc*12))}${kpi("Redução",pc.toFixed(1)+"%")}</div>${cmp(t.c,t.c-dc,"Atual","Simulado")}`}
+function vSimulador(){if(!S.devices.length)return empty();if(!S.devices.find(x=>x.id===sim.id)){sim={id:S.devices[0].id,h:S.devices[0].h}}
+ return`<div class="card"><h2>Simulador de cenários</h2><p class="m">Teste hábitos sem alterar os dados cadastrados.</p><label>Aparelho<select id="sim-d">${S.devices.map(d=>`<option value="${d.id}" ${d.id===sim.id?"selected":""}>${d.icon} ${esc(d.name)}</option>`).join("")}</select></label><label>Horas por dia simuladas: <b id="sim-v">${sim.h.toString().replace(".",",")} h</b><input type="range" id="sim-r" min="0" max="24" step="0.5" value="${sim.h}"></label></div><div class="card" id="simres">${simRes()}</div>`}
+function vMeta(){if(!S.devices.length)return empty();const p=plan(S.goal);
+ return`<div class="card"><h2>Planejador de metas</h2><div class="fg"><label>Quero economizar (R$/mês)<input id="goal" inputmode="decimal" value="${String(S.goal).replace(".",",")}"></label><label>Redução máxima por aparelho (%)<input id="lim" inputmode="decimal" value="${S.limit}"></label></div><p class="m">Aparelhos marcados como essenciais nunca entram nas sugestões.</p></div>
+ <div class="card"><h2>Sugestões</h2>${p.steps.length?p.steps.map(s=>`<p>${s.r.d.icon} Reduzir <b>${esc(s.r.d.name)}</b> de ${(+s.r.d.h.toFixed(2)).toLocaleString("pt-BR")} h para ${(+(s.r.d.h-s.hrs).toFixed(2)).toLocaleString("pt-BR")} h por dia: <b>${R(s.take)}</b>/mês</p>`).join(""):`<p class="m">Nenhuma redução possível com os limites atuais.</p>`}
+ <div class="${p.left<=0?"ok":"err"}">${p.left<=0?"Meta alcançável com as alterações sugeridas.":`Meta não alcançável dentro dos limites: ainda faltam ${R(p.left)}/mês.`}</div></div>`}
+function vRelatorio(){if(!S.devices.length)return empty();const r=rows().sort((a,b)=>b.c-a.c),t=tot(),p=plan(S.goal),sv=S.goal-p.left;
+ const rec=r.filter(x=>!x.d.ess&&x.d.h>0).slice(0,3).map(x=>`<li>Reduzir 1 h/dia de ${esc(x.d.name)} economiza cerca de ${R(x.c*Math.min(1,x.d.h)/x.d.h)} por mês.</li>`).join("");
+ return`<div class="card"><h1>Relatório EcoWatt</h1><p class="m">${new Date().toLocaleDateString("pt-BR")} · tarifa ${R(S.tariff)}/kWh ${tag()}</p>
+ <div class="grid">${kpi("Aparelhos",r.length)}${kpi("Consumo mensal",K(t.k))}${kpi("Custo estimado",R(t.c))}${kpi("Maior consumo",esc(r[0].d.name))}${kpi("Economia potencial",R(potential()))}</div></div>
+ <div class="card"><h2>Comparação de cenários</h2>${cmp(t.c,t.c-sv,"Atual","Com meta")}<p class="m">Meta de ${R(S.goal)}: economia de ${R(sv)}/mês (${R(sv*12)}/ano)${p.left>0?`, faltam ${R(p.left)}`:""}.</p></div>
+ <div class="card"><h2>Ranking</h2>${ranking()}</div>${rec?`<div class="card"><h2>Recomendações</h2><ul>${rec}</ul></div>`:""}
+ <p class="m">Estimativas baseadas nos dados informados. Tributos, bandeiras tarifárias e a potência real de cada modelo alteram o valor da fatura.</p><button class="btn np" data-a="print">Imprimir ou salvar em PDF</button>`}
+/* ===== Roteador e eventos ===== */
+const V={inicio:["Início",vInicio],aparelhos:["Aparelhos",vAparelhos],graficos:["Gráficos",vGraficos],simulador:["Simulador",vSimulador],meta:["Meta",vMeta],relatorio:["Relatório",vRelatorio]};
+function render(){const k=V[location.hash.slice(1)]?location.hash.slice(1):"inicio";
+ $("#nav").innerHTML=Object.entries(V).map(([i,v])=>`<a href="#${i}" ${i===k?'aria-current="page"':""}>${v[0]}</a>`).join("");$("#app").innerHTML=V[k][1]()}
+addEventListener("hashchange",()=>{editId=null;render();scrollTo(0,0)});
+document.addEventListener("click",ev=>{const b=ev.target.closest("[data-a]");if(!b)return;const a=b.dataset.a,id=b.dataset.id;
+ if(a==="demo"){S.devices=SAMPLE.map(x=>({...x,id:uid()}));S.goal=50;save();render()}
+ else if(a==="clear"){if(confirm("Excluir todos os dados cadastrados?")){S.devices=[];save();render()}}
+ else if(a==="pre"){const p=PRE[+b.dataset.i];curIcon=p[0];$("#f-name").value=p[1];$("#f-w").value=p[2];$("#f-h").value=String(p[3]).replace(".",",");$("#f-d").value=p[4];$("#f-q").value=p[5]||1;$("#f-w").focus()}
+ else if(a==="edit"){editId=id;render();scrollTo(0,0)}
+ else if(a==="cancel"){editId=null;render()}
+ else if(a==="del"){S.devices=S.devices.filter(d=>d.id!==id);save();render()}
+ else if(a==="print")print()
+ else if(a==="save"){const f=i=>P($("#"+i).value),name=$("#f-name").value.trim(),w=f("f-w"),q=f("f-q")??1,h=f("f-h"),d=f("f-d"),k=f("f-kwh");let m="";
+  if(!name)m="Informe o nome do aparelho.";
+  else if([w,q,h,d,k].some(Number.isNaN))m="Use apenas números positivos (decimais com vírgula ou ponto).";
+  else if(k==null&&!(w>0))m="Informe a potência em watts ou o consumo mensal em kWh.";
+  else if(!(q>0))m="A quantidade deve ser maior que zero.";
+  else if(h==null||h>24)m="Horas por dia devem estar entre 0 e 24.";
+  else if(d==null||d>31)m="Dias por mês devem estar entre 0 e 31.";
+  if(m){$("#err").textContent=m;return}
+  const o={name,w:w??0,q,h,d,kwh:k,ess:$("#f-ess").checked},e=S.devices.find(x=>x.id===editId);
+  if(e)Object.assign(e,o);else S.devices.push({...o,id:uid(),icon:curIcon});
+  editId=null;save();render()}});
+document.addEventListener("change",ev=>{const t=ev.target;
+ if(t.id==="tar"){const v=P(t.value);if(v>0){S.tariff=v;save()}render()}
+ else if(t.id==="goal"){const v=P(t.value);if(v!=null&&!isNaN(v)){S.goal=v;save()}render()}
+ else if(t.id==="lim"){const v=P(t.value);if(v!=null&&v<=100){S.limit=v;save()}render()}
+ else if(t.id==="sim-d"){const d=S.devices.find(x=>x.id===t.value);sim={id:d.id,h:d.h};render()}});
+document.addEventListener("input",ev=>{if(ev.target.id==="sim-r"){sim.h=+ev.target.value;$("#sim-v").textContent=sim.h.toString().replace(".",",")+" h";$("#simres").innerHTML=simRes()}});
+/* ===== v2: correções, diagnóstico, testes ===== */
+S.devices=Array.isArray(S.devices)?S.devices.filter(d=>d&&typeof d==="object"):[];
+if(!(S.tariff>0))S.tariff=0.9;if(!(S.limit>=0&&S.limit<=100))S.limit=50;if(!(S.goal>=0))S.goal=50;
+document.head.insertAdjacentHTML("beforeend",'<style>.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translate(-50%,20px);background:#166534;color:#fff;padding:10px 18px;border-radius:99px;font-weight:700;opacity:0;transition:.25s;pointer-events:none}.toast.on{opacity:1;transform:translate(-50%,0)}.invalid{border-color:var(--wn)!important}small.err{display:block;font-size:.78rem;min-height:0}.grid .card:nth-child(2) b{font-size:2rem;color:var(--g)}</style>');
+const f1=v=>(+v.toFixed(1)).toLocaleString("pt-BR");
+const simBase=d=>d.kwh!=null?d.kwh:d.h;
+const fmtv=(v,d)=>f1(v)+(d.kwh!=null?" kWh/mês":" h/dia");
+const toast=m=>{let t=$("#toast");if(!t){document.body.insertAdjacentHTML("beforeend",'<div id="toast" class="toast" role="status"></div>');t=$("#toast")}t.textContent=m;t.classList.add("on");setTimeout(()=>t.classList.remove("on"),2200)};
+const fe=(el,m)=>{let s=document.getElementById("e-"+el.id);if(!s){s=document.createElement("small");s.id="e-"+el.id;s.className="err";s.setAttribute("role","alert");el.after(s)}s.textContent=m;el.classList.toggle("invalid",!!m);if(m)el.focus()};
+/* Planejamento puro: reduz o consumo (kWh) dos aparelhos não essenciais, do mais caro ao mais barato, até o limite % de cada um */
+const planFor=(devs,tariff,limit,goal)=>{if(!(tariff>0))return{steps:[],left:goal,max:0,ok:goal<=0};
+ const el=devs.filter(d=>!d.ess).map(d=>{const k=kwh(d);return{d,k,c:k*tariff}}).filter(x=>x.c>0).sort((a,b)=>b.c-a.c);
+ const max=el.reduce((a,x)=>a+x.c*limit/100,0);let need=goal;const steps=[];
+ for(const x of el){if(need<=0)break;const take=Math.min(x.c*limit/100,need);if(take>0){steps.push({r:x,take});need-=take}}
+ const left=Math.max(need,0);return{steps,left,max,ok:left<0.005}};
+plan=g=>planFor(S.devices,S.tariff,S.limit,g);
+potential=()=>planFor(S.devices,S.tariff,S.limit,0).max;
+const chg=(x,take)=>{const nk=x.k-take/S.tariff;return x.d.kwh!=null?`reduzir o consumo mensal de ${K(x.k)} para ${K(nk)}`:`reduzir de ${f1(x.d.h)} h para ${f1(x.d.h*nk/x.k)} h por dia`};
+simRes=()=>{const d=S.devices.find(x=>x.id===sim.id);if(!d)return"";const a=kwh(d),b=simKwh(d,sim.h),dk=a-b,dc=dk*S.tariff,pc=a>0?dk/a*100:0,t=tot(),up=dc<-0.005,dn=dc>0.005;
+ const msg=dn?`Com essa mudança, você poderá economizar aproximadamente ${R(dc)} por mês.`:up?`Atenção: essa mudança aumentaria o gasto em cerca de ${R(-dc)} por mês.`:"Sem alteração no consumo.";
+ const hyp=d.kwh!=null?"Consumo informado em kWh: a simulação usa o valor mensal que você definiu, sem converter para horas.":"Estimativa linear: consumo proporcional às horas de uso (potência × quantidade × horas × dias).";
+ return`<div class="${up?"err":"ok"}">${msg}</div><div class="grid" style="margin-top:12px">${kpi("Consumo anterior",K(a))}${kpi("Consumo simulado",K(b))}${kpi("Diferença",(dk<0?"+":"−")+K(Math.abs(dk)).replace("-",""))}${kpi(up?"Aumento mensal":dn?"Economia mensal":"Variação mensal",R(Math.abs(dc)))}${kpi(up?"Aumento anual":dn?"Economia anual":"Variação anual",R(Math.abs(dc)*12))}${kpi(up?"Aumento":dn?"Redução":"Variação",Math.abs(pc).toFixed(1)+"%")}</div>${cmp(t.c,t.c-dc,"Atual","Simulado")}<p class="m">${hyp}</p>`};
+const vSimulador2=()=>{if(!S.devices.length)return empty();let d=S.devices.find(x=>x.id===sim.id);if(!d){d=S.devices[0];sim={id:d.id,h:simBase(d)}}const kw=d.kwh!=null;
+ return`<div class="card"><h2>Simulador de cenários</h2><p class="m">Teste hábitos sem alterar os dados cadastrados.</p><label>Aparelho<select id="sim-d">${S.devices.map(x=>`<option value="${x.id}" ${x.id===d.id?"selected":""}>${x.icon} ${esc(x.name)}</option>`).join("")}</select></label><label>${kw?"Consumo mensal simulado (kWh)":"Horas por dia simuladas"}: <b id="sim-v">${fmtv(sim.h,d)}</b><input type="range" id="sim-r" min="0" max="${kw?Math.max(10,Math.ceil(d.kwh*2)):24}" step="0.5" value="${sim.h}"></label><button class="btn s" data-a="simreset">Restaurar valores originais</button></div><div class="card" id="simres">${simRes()}</div>`};
+const vMeta2=()=>{if(!S.devices.length)return empty();const p=plan(S.goal);
+ return`<div class="card"><h2>Planejador de metas</h2><div class="fg"><label>Quero economizar (R$/mês)<input id="goal" inputmode="decimal" value="${String(S.goal).replace(".",",")}"></label><label>Redução máxima por aparelho (%)<input id="lim" inputmode="decimal" value="${String(S.limit).replace(".",",")}"></label></div><p class="m">Só aparelhos não essenciais entram. Economia máxima estimada: <b>${R(p.max)}</b>/mês.</p></div><div class="card"><h2>Sugestões</h2>${p.steps.length?p.steps.map(s=>`<p>${s.r.d.icon} <b>${esc(s.r.d.name)}</b>: ${chg(s.r,s.take)} (≈ ${R(s.take)}/mês)</p>`).join(""):`<p class="m">Nenhuma redução necessária ou possível.</p>`}<div class="${p.ok?"ok":"err"}">${p.ok?`Meta alcançável: as sugestões somam ${R(S.goal)}/mês.`:`Meta inviável: com limite de ${f1(S.limit)}%, a economia máxima é ${R(p.max)}/mês; faltam ${R(p.left)}.`}</div><p class="m">Estimativas lineares. Em aparelhos informados em kWh, reduzir depende de mudar hábitos ou trocar o equipamento.</p></div>`};
+const vDiag=()=>{if(!S.devices.length)return empty();const r=rows().sort((a,b)=>b.c-a.c),t=tot(),mk=r.slice().sort((a,b)=>b.k-a.k)[0],el=r.filter(x=>!x.d.ess&&x.c>0),p=planFor(S.devices,S.tariff,S.limit,0),b=el[0];
+ const card=(q,a,n)=>`<div class="card"><span class="m">${q}</span><h2 style="margin:6px 0">${a}</h2><p class="m">${n}</p></div>`;
+ return`<div class="grid">${card("1. Maior custo mensal",`${r[0].d.icon} ${esc(r[0].d.name)}`,R(r[0].c)+" por mês")}${card("2. Maior parcela do consumo",`${mk.d.icon} ${esc(mk.d.name)}`,`${t.k>0?(mk.k/t.k*100).toFixed(1):0}% · ${K(mk.k)} de ${K(t.k)}`)}${card("3. Oportunidades de redução",el.length+" aparelho(s)",el.length?el.map(x=>esc(x.d.name)).join(", "):"Nenhum aparelho elegível (essenciais são excluídos).")}${card("4. Maior economia numa alteração",b?`${b.d.icon} ${esc(b.d.name)}`:"—",b?`${chg(b,b.c*S.limit/100)}: ≈ ${R(b.c*S.limit/100)}/mês`:"Sem alteração possível.")}${card("5. Economia máxima estimada",R(p.max)+"/mês",`${R(p.max*12)}/ano, com limite de ${f1(S.limit)}% por aparelho não essencial`)}</div><p class="m">Calculado só com os dados cadastrados e a tarifa informada; não considera a eficiência de modelos específicos.</p>`};
+const vRel2=()=>{if(!S.devices.length)return empty();const r=rows().sort((a,b)=>b.c-a.c),t=tot(),p=plan(S.goal),sv=S.goal-p.left;
+ const rec=p.steps.slice(0,3).map(s=>`<li>${s.r.d.icon} ${esc(s.r.d.name)}: ${chg(s.r,s.take)} (≈ ${R(s.take)}/mês).</li>`).join("");
+ return`<div class="card"><h1>Relatório EcoWatt</h1><p class="m">${new Date().toLocaleDateString("pt-BR")} · tarifa ${R(S.tariff)}/kWh ${tag()}</p><div class="grid">${kpi("Aparelhos",r.length)}${kpi("Custo estimado",R(t.c))}${kpi("Consumo mensal",K(t.k))}${kpi("Maior consumo",esc(r[0].d.name))}${kpi("Economia potencial",R(potential()))}</div></div><div class="card"><h2>Comparação de cenários</h2>${cmp(t.c,t.c-sv,"Atual","Com meta")}<p class="m">Meta de ${R(S.goal)}: ${p.ok?"alcançável":"inviável (economia máxima "+R(p.max)+")"}. Economia sugerida: ${R(sv)}/mês (${R(sv*12)}/ano).</p></div><div class="card"><h2>Ranking</h2>${ranking()}</div><div class="card"><h2>Participação no consumo</h2>${donut(rows())}</div>${rec?`<div class="card"><h2>Recomendações</h2><ul>${rec}</ul></div>`:""}<p class="m">Estimativas lineares baseadas nos dados informados. Tributos, bandeiras tarifárias e a potência real de cada modelo alteram a fatura.</p><button class="btn np" data-a="print">Imprimir ou salvar em PDF</button>`};
+const vI=V.inicio[1];V.inicio[1]=()=>vI()+(S.devices.length?`<div class="card"><h2>Participação no consumo</h2>${donut(rows())}</div>`:"");
+V.simulador[1]=vSimulador2;V.meta[1]=vMeta2;const rel=V.relatorio;delete V.relatorio;V.diagnostico=["Diagnóstico",vDiag];V.relatorio=rel;V.relatorio[1]=vRel2;
+/* Eventos (fase de captura: substituem os tratadores anteriores) */
+function saveDev(){["f-name","f-w","f-q","f-h","f-d","f-kwh"].forEach(i=>fe($("#"+i),""));
+ const g=i=>$("#"+i),f=i=>P(g(i).value),name=g("f-name").value.trim(),w=f("f-w"),h=f("f-h"),d=f("f-d"),k=f("f-kwh"),qs=g("f-q").value.trim()||"1",bad=(i,m)=>fe(g(i),m);
+ if(!name)return bad("f-name","Informe o nome do aparelho.");
+ if(Number.isNaN(w))return bad("f-w","Use apenas números positivos.");
+ if(Number.isNaN(k))return bad("f-kwh","Use apenas números positivos.");
+ if(k==null&&!(w>0))return bad("f-w","Informe a potência em watts ou o consumo mensal em kWh.");
+ if(!/^[1-9]\d*$/.test(qs))return bad("f-q","A quantidade deve ser um número inteiro maior que zero.");
+ if(Number.isNaN(h)||(h==null&&k==null)||h>24)return bad("f-h","Horas por dia: de 0 a 24.");
+ if(Number.isNaN(d)||(d==null&&k==null)||d>31)return bad("f-d","Dias por mês: de 0 a 31.");
+ const o={name,w:w??0,q:+qs,h:h??0,d:d??30,kwh:k,ess:g("f-ess").checked},e=S.devices.find(x=>x.id===editId);
+ if(e)Object.assign(e,o);else S.devices.push({...o,id:uid(),icon:curIcon});
+ editId=null;save();render();toast("Aparelho salvo ✓")}
+addEventListener("click",ev=>{const b=ev.target.closest("[data-a]");if(!b)return;const a=b.dataset.a;
+ if(a==="simreset"){ev.stopImmediatePropagation();const d=S.devices.find(x=>x.id===sim.id);if(d){sim.h=simBase(d);render()}}
+ else if(a==="save"){ev.stopImmediatePropagation();saveDev()}},true);
+addEventListener("change",ev=>{const t=ev.target,v=P(t.value);let ok=false;
+ if(t.id==="tar"){if(Number.isFinite(v)&&v>0)ok=S.tariff=v;else fe(t,"Informe uma tarifa maior que zero (ex.: 0,90).")}
+ else if(t.id==="goal"){if(Number.isFinite(v)&&v>=0)ok=(S.goal=v,true);else fe(t,"A meta deve ser um valor maior ou igual a zero.")}
+ else if(t.id==="lim"){if(Number.isFinite(v)&&v<=100)ok=(S.limit=v,true);else fe(t,"Informe um percentual entre 0 e 100.")}
+ else if(t.id==="sim-d"){const d=S.devices.find(x=>x.id===t.value);if(d)sim={id:d.id,h:simBase(d)};render()}
+ else return;
+ ev.stopImmediatePropagation();if(ok){save();render()}},true);
+addEventListener("input",ev=>{if(ev.target.id!=="sim-r")return;ev.stopImmediatePropagation();sim.h=+ev.target.value;const d=S.devices.find(x=>x.id===sim.id);$("#sim-v").textContent=fmtv(sim.h,d);$("#simres").innerHTML=simRes()},true);
+/* Testes automatizados (rodam ao abrir a página; resultado no rodapé e no console) */
+function runTests(){const T=[],A=(x,y)=>Math.abs(x-y)<1e-6,t=(n,f)=>{let r=false;try{r=!!f()}catch(e){}T.push([n,r])},tv={w:100,q:1,h:5,d:30},ac={w:1100,q:2,h:8,d:30};
+ t("Consumo de um aparelho",()=>A(kwh(tv),15));
+ t("Consumo de múltiplos aparelhos",()=>A(kwh(tv)+kwh({w:1000,q:2,h:1,d:10}),35));
+ t("Custo mensal",()=>A(kwh(tv)*0.9,13.5));
+ t("Alteração da tarifa",()=>A(kwh(tv)*1.2,18));
+ t("Simulação de redução",()=>A(kwh(tv)-simKwh(tv,3),6));
+ t("Simulação de aumento",()=>A(simKwh(tv,6)-kwh(tv),3));
+ t("kWh informado é total (não multiplica pela quantidade)",()=>A(kwh({kwh:40,q:3,w:0,h:24,d:30}),40)&&A(simKwh({kwh:40,q:3},30),30));
+ t("Meta alcançável",()=>planFor([ac],0.9,50,20).ok);
+ t("Meta inalcançável",()=>{const p=planFor([ac],0.9,50,1000);return !p.ok&&p.left>0&&A(p.max,kwh(ac)*0.9*0.5)});
+ t("Aparelhos essenciais protegidos",()=>planFor([{...ac,ess:true}],0.9,100,10).steps.length===0);
+ t("Valores inválidos",()=>Number.isNaN(P("-3"))&&Number.isNaN(P("abc"))&&P("")===null&&P("2,5")===2.5);
+ t("Persistência no LocalStorage",()=>{localStorage.setItem("ecowatt-t",JSON.stringify([tv]));const r=JSON.parse(localStorage.getItem("ecowatt-t"));localStorage.removeItem("ecowatt-t");return A(kwh(r[0]),15)});
+ const ok=T.filter(x=>x[1]).length;console.table(T.map(x=>({teste:x[0],ok:x[1]})));
+ $("#app").insertAdjacentHTML("afterend",`<details class="m np"><summary>${ok===T.length?"✅":"⚠️"} ${ok}/${T.length} testes automatizados</summary>${T.map(x=>`<div>${x[1]?"✅":"❌"} ${x[0]}</div>`).join("")}</details>`)}
+/* ===== v3: auditoria final ===== */
+document.head.insertAdjacentHTML("beforeend","<style>[hidden]{display:none!important}</style>");
+let fMode="pot";
+/* Validação de registros (LocalStorage): preserva válidos, descarta incompatíveis */
+const cleanDev=x=>{if(!x||typeof x!=="object")return null;const n=v=>typeof v==="number"&&Number.isFinite(v),mode=x.kwh!=null?"kwh":"pot";
+ if(typeof x.name!=="string"||!x.name.trim()||!n(x.q)||!Number.isInteger(x.q)||x.q<1)return null;
+ if(mode==="kwh"?!(n(x.kwh)&&x.kwh>=0):!(n(x.w)&&x.w>0&&n(x.h)&&x.h>=0&&x.h<=24&&n(x.d)&&x.d>=0&&x.d<=31))return null;
+ return{...x,mode,id:typeof x.id==="string"&&x.id?x.id:uid(),icon:typeof x.icon==="string"?x.icon:"🔌",ess:!!x.ess,w:n(x.w)?x.w:0,h:n(x.h)?x.h:0,d:n(x.d)?x.d:0}};
+{const raw=S.devices.length;S.devices=S.devices.map(cleanDev).filter(Boolean);if(raw>S.devices.length)setTimeout(()=>toast((raw-S.devices.length)+" registro(s) incompatível(is) ignorado(s) ao carregar."),400)}
+/* Cadastro: função pura que monta o aparelho conforme o modo escolhido (nada de valores ocultos) */
+function buildDev(mode,v,ess){const name=(v.name||"").trim(),qs=(v.q||"").trim()||"1";
+ if(!name)return{f:"f-name",e:"Informe o nome do aparelho."};
+ if(!/^[1-9]\d*$/.test(qs))return{f:"f-q",e:"A quantidade deve ser um número inteiro maior que zero."};
+ const q=+qs;
+ if(mode==="kwh"){const k=P(v.kwh??"");if(!Number.isFinite(k)||k>1000000000)return{f:"f-kwh",e:"Informe o consumo mensal total em kWh (número maior ou igual a zero)."};return{dev:{mode,name,q,w:0,h:0,d:0,kwh:k,ess:!!ess}}}
+ const w=P(v.w??""),h=P(v.h??""),d=P(v.d??"");
+ if(!(Number.isFinite(w)&&w>0&&w<=1000000))return{f:"f-w",e:"Informe uma potência válida entre 0 e 1.000.000 W."};
+ if(!(Number.isFinite(h)&&h>=0&&h<=24))return{f:"f-h",e:"Horas por dia: de 0 a 24."};
+ if(!(Number.isFinite(d)&&d>=0&&d<=31))return{f:"f-d",e:"Dias por mês: de 0 a 31."};
+ return{dev:{mode,name,q,w,h,d,kwh:null,ess:!!ess}}}
+function saveDev(){["f-name","f-q","f-w","f-h","f-d","f-kwh"].forEach(i=>{const el=$("#"+i);if(el)fe(el,"")});
+ const g=i=>$("#"+i)?.value??"",r=buildDev(fMode,{name:g("f-name"),q:g("f-q"),w:g("f-w"),h:g("f-h"),d:g("f-d"),kwh:g("f-kwh")},$("#f-ess").checked);
+ if(r.e)return fe($("#"+r.f),r.e);
+ const e=S.devices.find(x=>x.id===editId);if(e)Object.assign(e,r.dev);else S.devices.push({...r.dev,id:uid(),icon:curIcon});
+ editId=null;save();render();toast("Aparelho salvo ✓")}
+function applyMode(m){fMode=m;document.querySelectorAll("[data-g]").forEach(x=>x.hidden=x.dataset.g!==m);document.querySelectorAll("[data-a=mode]").forEach(b=>{b.classList.toggle("s",b.dataset.m!==m);b.setAttribute("aria-pressed",b.dataset.m===m)})}
+const form3=()=>{const e=S.devices.find(d=>d.id===editId)||{},km=e.kwh!=null,ep=e.id&&!km?e:{};if(e.id)fMode=km?"kwh":"pot";curIcon=e.icon||curIcon;
+ const v=(o,x)=>o[x]!=null?esc(String(o[x]).replace(".",",")):"",pot=fMode==="pot",hd=m=>fMode===m?"":"hidden";
+ return`<div class="card"><h2>${e.id?"Editar aparelho":"Cadastrar aparelho"}</h2><div class="row" role="group" aria-label="Modo de cadastro"><button type="button" class="btn ${pot?"":"s"}" data-a="mode" data-m="pot" aria-pressed="${pot}">⚡ Potência e tempo</button><button type="button" class="btn ${pot?"s":""}" data-a="mode" data-m="kwh" aria-pressed="${!pot}">🧾 Consumo mensal (kWh)</button></div><br>
+ <div data-g="pot" ${hd("pot")}><div class="pre">${PRE.map((p,i)=>`<button type="button" data-a="pre" data-i="${i}">${p[0]} ${p[1]}</button>`).join("")}</div></div>
+ <div class="fg"><label>Nome<input id="f-name" value="${v(e,"name")}"></label><label>Quantidade (inteiro)<input id="f-q" inputmode="numeric" value="${v(e,"q")||1}"></label></div>
+ <div data-g="pot" ${hd("pot")}><div class="fg"><label>Potência (W)<input id="f-w" inputmode="decimal" value="${v(ep,"w")}"></label><label>Horas por dia<input id="f-h" inputmode="decimal" value="${v(ep,"h")}"></label><label>Dias por mês<input id="f-d" inputmode="decimal" value="${v(ep,"d")||(e.id?"":"30")}"></label></div><p class="m">Consumo = potência × quantidade × horas × dias ÷ 1000. A potência sugerida é só referência. Equipamentos com ciclos automáticos podem consumir menos que a estimativa nominal.</p></div>
+ <div data-g="kwh" ${hd("kwh")}><div class="fg"><label>Consumo mensal TOTAL (kWh) de todas as unidades<input id="f-kwh" inputmode="decimal" value="${km?v(e,"kwh"):""}"></label></div><p class="m">Use o valor da etiqueta ou do manual. Ele já representa a soma das unidades: não é multiplicado pela quantidade.</p></div>
+ <label><input type="checkbox" id="f-ess" ${e.ess?"checked":""}>Essencial (saúde ou segurança): não sugerir redução</label><p class="err" id="err" role="alert"></p><div class="row"><button class="btn" data-a="save">${e.id?"Salvar alterações":"Adicionar"}</button>${e.id?`<button class="btn s" data-a="cancel">Cancelar</button>`:""}</div></div>`};
+V.aparelhos[1]=()=>{const h=vAparelhos(),i=h.indexOf('<div class="card"><h2>Aparelhos (');return form3()+h.slice(i)};
+/* Simulador: inicialização única via simBase; reinicia ao trocar/editar/excluir aparelho */
+const simInitFor=d=>({id:d.id,h:simBase(d),b:simBase(d)});
+const simSync=()=>{let d=S.devices.find(x=>x.id===sim.id);if(!d){d=S.devices[0];if(!d)return null}if(sim.id!==d.id||sim.b!==simBase(d))sim=simInitFor(d);return d};
+V.simulador[1]=()=>{if(!S.devices.length)return empty();const d=simSync();return vSimulador2().replace("<label>Aparelho",`<p class="m">Valor original: <b>${fmtv(simBase(d),d)}</b> (os dados cadastrados não são alterados)</p><label>Aparelho`)};
+const sr=simRes;simRes=()=>{simSync();return sr().replace("−0 kWh","0 kWh")};
+/* Metas: limites e mensagens */
+const pf=planFor;plan=g=>pf(S.devices,S.tariff,Math.min(100,Math.max(0,S.limit)),Math.max(0,+g||0));
+const vm=vMeta2;V.meta[1]=()=>{if(!S.devices.length)return empty();const t=tot(),el=S.devices.filter(d=>!d.ess&&kwh(d)>0).length;
+ const note=S.goal===0?"Meta zero: não há redução a calcular.":el===0?"Não há aparelhos elegíveis (todos essenciais ou sem consumo).":S.goal>t.c?`A meta supera o custo total estimado (${R(t.c)}).`:"";
+ return vm().replace("Economia máxima estimada:","Economia teórica máxima:")+`<div class="card"><p class="m">${note?"<b>"+note+"</b> ":""}Economia <b>teórica</b> é uma regra matemática aplicada aos dados cadastrados e não garante economia real. Economia <b>simulada</b> é a obtida no Simulador, a partir de uma alteração específica sua.</p></div>`};
+const vd=vDiag;V.diagnostico[1]=()=>vd().replace("2. Maior parcela do consumo","2. Maior consumo em kWh").replace("3. Oportunidades de redução","3. Aparelhos elegíveis para redução").replace("4. Maior economia numa alteração","4. Maior economia teórica individual").replace("5. Economia máxima estimada","5. Economia teórica máxima da residência")+`<p class="m">São regras matemáticas simples, não inteligência artificial. Economia teórica não é garantia de economia real.</p>`;
+/* Tema claro/escuro */
+const root=document.documentElement;try{const th=localStorage.getItem("ecowatt-theme");if(th)root.dataset.theme=th}catch(e){}
+$("header .logo").insertAdjacentHTML("beforeend",'<button id="theme" class="btn s np" style="float:right" aria-label="Alternar tema claro e escuro">🌓</button>');
+document.addEventListener("click",ev=>{if(!ev.target.closest("#theme"))return;const c=root.dataset.theme||(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"),n=c==="dark"?"light":"dark";root.dataset.theme=n;try{localStorage.setItem("ecowatt-theme",n)}catch(e){}});
+/* Confirmações e troca de modo (captura) */
+addEventListener("click",ev=>{const b=ev.target.closest("[data-a]");if(!b)return;const a=b.dataset.a;
+ if(a==="mode"){ev.stopImmediatePropagation();applyMode(b.dataset.m)}
+ else if(a==="pre")applyMode("pot");
+ else if(a==="del"){ev.stopImmediatePropagation();const d=S.devices.find(x=>x.id===b.dataset.id);if(d&&confirm(`Excluir "${d.name}"?`)){S.devices=S.devices.filter(x=>x.id!==d.id);if(editId===d.id)editId=null;save();render();toast("Aparelho excluído")}}
+ else if(a==="demo"&&S.devices.length&&!confirm("Substituir os aparelhos cadastrados pela residência de exemplo?"))ev.stopImmediatePropagation()},true);
+/* Testes automatizados (rodam ao abrir a página) */
+function runTests(){const T=[],A=(x,y)=>Math.abs(x-y)<1e-6,t=(n,f)=>{let r=false;try{r=!!f()}catch(e){}T.push([n,r])},tv={w:100,q:1,h:5,d:30},ac={w:1100,q:2,h:8,d:30},fr=SAMPLE[0],ar=SAMPLE[1],pl=(l,g,p=50)=>pf(l,0.9,p,g);
+ t("Consumo de um aparelho",()=>A(kwh(tv),15));
+ t("Consumo de múltiplos aparelhos",()=>A(kwh(tv)+kwh({w:1000,q:2,h:1,d:10}),35));
+ t("Custo mensal e alteração da tarifa",()=>A(kwh(tv)*0.9,13.5)&&A(kwh(tv)*1.2,18));
+ t("Simulação de redução e de aumento",()=>A(kwh(tv)-simKwh(tv,3),6)&&A(simKwh(tv,6)-kwh(tv),3));
+ t("kWh informado é total (não multiplica pela quantidade)",()=>A(kwh({kwh:40,q:3}),40)&&A(simKwh({kwh:40,q:3},30),30));
+ t("Meta alcançável",()=>pl([ac],20).ok);
+ t("Meta inalcançável",()=>{const p=pl([ac],1000);return !p.ok&&p.left>0&&A(p.max,kwh(ac)*0.45)});
+ t("Aparelhos essenciais protegidos",()=>pl([{...ac,ess:true}],10,100).steps.length===0);
+ t("Valores inválidos rejeitados",()=>Number.isNaN(P("-3"))&&Number.isNaN(P("abc"))&&P("")===null&&P("2,5")===2.5);
+ t("Persistência no LocalStorage",()=>{localStorage.setItem("ecowatt-t",JSON.stringify([tv]));const r=JSON.parse(localStorage.getItem("ecowatt-t"));localStorage.removeItem("ecowatt-t");return A(kwh(r[0]),15)});
+ t("Simulador: geladeira (kWh) inicia em 38 kWh",()=>simInitFor(fr).h===38);
+ t("Simulador: aparelho por potência inicia nas horas originais",()=>simInitFor(ar).h===ar.h);
+ t("Simulação sem alteração tem diferença zero (kWh e potência)",()=>[fr,ar].every(d=>A(kwh(d)-simKwh(d,simInitFor(d).h),0)));
+ t("Alteração efetiva gera economia e restaurar zera a diferença",()=>{let s=simInitFor(ar);const a=kwh(ar)-simKwh(ar,s.h-2);s=simInitFor(ar);return a>0&&A(kwh(ar)-simKwh(ar,s.h),0)});
+ t("Trocar de aparelho reinicializa a simulação",()=>simInitFor(fr).h===38&&simInitFor(ar).h===6);
+ t("Simulação não altera os dados originais",()=>{const c=JSON.stringify(ar);simKwh(ar,1);return JSON.stringify(ar)===c});
+ t("Modo kWh: total das unidades, sem campos de potência",()=>{const r=buildDev("kwh",{name:"G",q:"2",kwh:"38",w:"999",h:"9"});return A(kwh(r.dev),38)&&r.dev.w===0&&r.dev.mode==="kwh"});
+ t("Modo potência ignora kWh oculto",()=>{const r=buildDev("pot",{name:"TV",q:"1",w:"100",h:"5",d:"30",kwh:"99"});return r.dev.kwh===null&&A(kwh(r.dev),15)});
+ t("Cadastro rejeita quantidade 0/decimal e horas > 24",()=>buildDev("pot",{name:"x",q:"0",w:"1",h:"1",d:"1"}).e&&buildDev("pot",{name:"x",q:"1,5",w:"1",h:"1",d:"1"}).e&&buildDev("pot",{name:"x",q:"1",w:"1",h:"25",d:"1"}).e);
+ t("Quantidade de aparelhos da residência de exemplo",()=>SAMPLE.length===10);
+ t("Dados antigos (sem modo) são migrados",()=>cleanDev({id:"a",icon:"x",name:"G",w:150,q:1,h:24,d:30,kwh:38}).mode==="kwh"&&cleanDev({id:"b",name:"TV",w:100,q:1,h:5,d:30}).mode==="pot");
+ t("Dados inválidos no LocalStorage: mantém só os válidos",()=>[null,5,{},{name:"x",q:-1,w:1,h:1,d:1},{name:"ok",q:1,w:10,h:1,d:1}].map(cleanDev).filter(Boolean).length===1);
+ t("Edição e exclusão de aparelhos",()=>{let l=[{id:"1",...tv},{id:"2",...tv}];Object.assign(l.find(x=>x.id==="1"),{h:10});l=l.filter(x=>x.id!=="2");return l.length===1&&A(kwh(l[0]),30)});
+ t("Metas negativas e zero",()=>pl([ac],-5).ok&&pl([ac],-5).steps.length===0&&pl([ac],0).ok);
+ t("Sem aparelhos elegíveis (essenciais ou sem consumo)",()=>{const p=pl([{...ac,ess:true},{...tv,h:0}],10);return !p.ok&&p.max===0&&p.steps.length===0});
+ const ok=T.filter(x=>x[1]).length;console.table(T.map(x=>({teste:x[0],ok:x[1]})));
+ document.getElementById("tests")?.remove();$("#app").insertAdjacentHTML("afterend",`<details id="tests" class="m np"><summary>${ok===T.length?"✅":"⚠️"} ${ok}/${T.length} testes automatizados</summary>${T.map(x=>`<div>${x[1]?"✅":"❌"} ${x[0]}</div>`).join("")}</details>`);return T}
+render();runTests();
+</script></body></html>
